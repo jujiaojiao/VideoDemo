@@ -1,5 +1,7 @@
 package com.example.administrator.videodemo;
 
+import android.content.res.AssetFileDescriptor;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -8,12 +10,15 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.RelativeLayout;
+
+import java.io.FileDescriptor;
 import java.io.IOException;
+import java.io.InputStream;
 
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
-public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback, IMediaPlayer.OnPreparedListener, IMediaPlayer.OnCompletionListener, IMediaPlayer.OnBufferingUpdateListener {
+public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback, IMediaPlayer.OnCompletionListener, IMediaPlayer.OnBufferingUpdateListener, IMediaPlayer.OnPreparedListener {
 
     private Toolbar toolbar;
     private SurfaceView surfaceView;
@@ -45,12 +50,18 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         surfaceView.getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         mediaPlayer = new IjkMediaPlayer();
         try {
-            mediaPlayer.setDataSource("D:/VideoDemo/app/src/main/res/raw/test.mp4");
+//            AssetFileDescriptor assetFileDescriptor = this.getAssets().openFd("test.mp4");
+//            AssetFileDescriptor assetFileDescriptor = this.getResources().openRawResourceFd(R.raw.test);
+//            String s = this.getAssets() + "/test.mp4";
+//            mediaPlayer.setDataSource(s);
+            Uri mUri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.test);
+            mediaPlayer.setDataSource(this, mUri);
         } catch (IOException e) {
             e.printStackTrace();
         }
         //mediaPlayer准备工作
         mediaPlayer.setOnPreparedListener(this);
+
         //MediaPlayer完成
         mediaPlayer.setOnCompletionListener(this);
 
@@ -95,11 +106,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
     }
 
-    @Override
-    public void onPrepared(IMediaPlayer iMediaPlayer) {
-        iMediaPlayer.start();
-        iMediaPlayer.prepareAsync();
-    }
 
     @Override
     public void onCompletion(IMediaPlayer iMediaPlayer) {
@@ -110,6 +116,12 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     @Override
     public void onBufferingUpdate(IMediaPlayer iMediaPlayer, int i) {
 
+    }
+
+    @Override
+    public void onPrepared(IMediaPlayer iMediaPlayer) {
+        iMediaPlayer.start();
+        iMediaPlayer.prepareAsync();
     }
 
     //此处为两个按钮监听
